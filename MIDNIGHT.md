@@ -8,6 +8,18 @@ at the upstream version. No extra runtime dependencies or model calls are added.
 
 ## Use
 
+Download the [Windows x64 prerelease](https://github.com/soliluqoy/midnight.codex/releases/tag/v0.162.1-midnight.1),
+verify its ZIP against the release's `SHA256SUMS.txt`, and extract the entire
+bundle. It contains all seven executables and their individual checksums. This
+initial download uses the development build profile; the validation limits and
+Windows runtime-lock issue are documented in the release notes.
+
+From your working project:
+
+```powershell
+& "C:/path/to/midnight-codex/midnight-codex.exe" -c tui.fullscreen_transcript=true
+```
+
 Run `midnight-codex.exe` from your working project with your usual Codex options
 and authentication. This is the CLI itself, not a terminal multiplexer or a second
 UI process. Keep this executable separate from the official `codex` installation.

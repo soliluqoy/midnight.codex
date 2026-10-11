@@ -1,5 +1,7 @@
 > **Midnight fork:** this branch adds an internal session/Git sidebar. See
 > [MIDNIGHT.md](MIDNIGHT.md) for building, controls, and upstream maintenance.
+> Download the [Windows x64 prerelease](https://github.com/soliluqoy/midnight.codex/releases/tag/v0.162.1-midnight.1)
+> for the ready-to-run Midnight bundle.
 > The installation commands below install the official CLI, which does not include this patch.
 
 <p align="center"><strong>Codex CLI</strong> is a coding agent from OpenAI that runs locally on your computer.
