@@ -53,8 +53,12 @@ cargo test --locked -p codex-tui --lib owned_transcript -- --test-threads=1
 ../midnight-dist/midnight-codex.exe --version
 ```
 
-The script builds the CLI and the six Windows helper executables shipped by
-upstream, including the sandbox runner and code-mode host. Keep all files in
+The script builds the CLI and five Windows helpers from source. It downloads the
+unchanged code-mode host from the exact upstream `rust-v0.162.1` release and checks
+SHA-256 `9f865a748c984492ca9b69aac75680e4954f31311c43ec33ddbdae0ed77bd4bd`.
+Rusty V8 150.4.0 does not publish its sandboxed Windows archive, so the normal Cargo
+build of that host fails; the official host retains its V8 sandbox. This bundle
+targets Windows x64. Keep all files in
 `midnight-dist` together when copying the bundle. It also includes checksums and
 license notices. `-OutputDirectory PATH` selects another destination.
 
@@ -85,7 +89,9 @@ git merge UPSTREAM_RELEASE_TAG
 Resolve integrations against that release's source, especially the owned
 transcript renderer, App initialization, key routing, workspace command runner,
 and cached ChatWidget fields. Update the base and CLI suffix in this file and
-`codex-rs/cli/src/main.rs`. Do not replace the fork with an official auto-update.
+`codex-rs/cli/src/main.rs`, and the official host's release URL/checksum in
+`scripts/build-midnight.ps1`. Verify that checksum against the matching release
+asset metadata. Do not replace the fork with an official auto-update.
 
 Run the focused tests above, then `cargo test --locked -p codex-tui --lib
 owned_transcript` and any suites affected by merge conflicts. Build the executable
