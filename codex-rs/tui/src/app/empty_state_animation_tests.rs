@@ -24,6 +24,7 @@ fn text(buffer: &Buffer) -> String {
                 .map(ratatui::buffer::Cell::symbol)
                 .collect::<String>()
                 .replace(&project, &normalized_project)
+                .replace(concat!("(v", env!("CARGO_PKG_VERSION"), ")"), "(v0.0.0)")
                 .trim_end()
                 .to_string()
         })
@@ -256,6 +257,7 @@ async fn empty_state_animation_preserves_header_cursor_and_footer() -> Result<()
 #[tokio::test]
 async fn submitting_a_draft_dismisses_logo_even_after_clear() -> Result<()> {
     let (mut app, _events, _ops) = crate::app::tests::make_test_app_with_channels().await;
+    app.midnight.toggle();
     app.local_settings.tui.animations = true;
     let size = Size::new(/*width*/ 120, /*height*/ 44);
     let mut tui = crate::tui::test_support::make_test_tui()?;

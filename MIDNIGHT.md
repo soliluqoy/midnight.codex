@@ -49,21 +49,24 @@ $env:RUST_MIN_STACK = '8388608'
 cargo fmt -p codex-tui -p codex-cli -- --check
 cargo test --locked -p codex-tui --lib midnight
 cargo test --locked -p codex-tui --lib owned_transcript -- --test-threads=1
-cargo build --locked -p codex-cli --bin codex
-Copy-Item -LiteralPath target/debug/codex.exe -Destination target/debug/midnight-codex.exe
-./target/debug/midnight-codex.exe --version
+../scripts/build-midnight.ps1
+../midnight-dist/midnight-codex.exe --version
 ```
 
+The script builds the CLI and the six Windows helper executables shipped by
+upstream, including the sandbox runner and code-mode host. Keep all files in
+`midnight-dist` together when copying the bundle. It also includes checksums and
+license notices. `-OutputDirectory PATH` selects another destination.
+
 The development profile avoids a long optimized build and is functional for
-local use. `cargo build --locked --release -p codex-cli --bin codex` produces an
-optimized executable under `target/release/` when needed. Normal upstream build
-instructions and licensing still apply. `Cargo.lock` includes Cargo's workspace
+local use. Pass `-Release` to the script for an optimized build when needed.
+Normal upstream build instructions and licensing still apply. `Cargo.lock` includes Cargo's workspace
 version normalization from the release tag's 0.0.0 entries to 0.162.1.
 The test stack setting matches upstream's test workflow for heavyweight App fixtures.
 
 The **Midnight Windows build** GitHub Actions workflow checks formatting, runs
-the sidebar tests, builds the CLI, and uploads `midnight-codex-windows-x64` with
-the executable and SHA-256 checksum. It runs on this branch's pushes and supports
+the sidebar and transcript tests, builds the Windows bundle, and uploads
+`midnight-codex-windows-x64` with executables and SHA-256 checksums. It runs on this branch's pushes and supports
 manual dispatch. Those are build artifacts, not automatically published releases.
 
 ## Maintain against upstream

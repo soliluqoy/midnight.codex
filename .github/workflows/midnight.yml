@@ -41,15 +41,7 @@ jobs:
       - name: Transcript regression tests
         run: cargo test --locked -p codex-tui --lib owned_transcript -- --test-threads=1
       - name: Build
-        run: cargo build --locked -p codex-cli --bin codex
-      - name: Package
-        run: |
-          New-Item -ItemType Directory -Path ../midnight-dist -Force | Out-Null
-          Copy-Item -LiteralPath target/debug/codex.exe -Destination ../midnight-dist/midnight-codex.exe
-          & ../midnight-dist/midnight-codex.exe --version
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath ../midnight-dist/midnight-codex.exe).Hash.ToLowerInvariant()
-          "$hash  midnight-codex.exe" | Set-Content -Encoding ascii -LiteralPath ../midnight-dist/SHA256SUMS.txt
+        run: ../scripts/build-midnight.ps1
       - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: midnight-codex-windows-x64
