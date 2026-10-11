@@ -36,6 +36,12 @@ timeout and capped output. Status at or above 8,000 bytes is labeled unavailable
 rather than silently truncated. No polling, watchers, or transcript scans are added.
 Hide/drop cancels the pending reader; project changes detach its old cache.
 
+Git refresh uses the host's normal command-execution and sandbox setup. In the
+Windows live check, both this build and the stock CLI reported a setup failure
+because an active `node_repl.exe` runtime file was locked. The pane and session
+fields still worked, with Git labeled unavailable. Resolve the host setup error
+before retrying **Alt+R**; this fork does not change the sandbox policy.
+
 ## Build on Windows
 
 Prerequisites: Git, Rust/rustup, and Visual Studio C++ build tools with a Windows

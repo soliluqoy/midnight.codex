@@ -22,8 +22,8 @@ foreach ($package in $packages) { $cargoArgs += @('-p', $package) }
 foreach ($binary in $binaries) {
     if ($binary -ne 'codex-code-mode-host') { $cargoArgs += @('--bin', $binary) }
 }
-$profile = 'debug'
-if ($Release) { $cargoArgs += '--release'; $profile = 'release' }
+$buildProfile = 'debug'
+if ($Release) { $cargoArgs += '--release'; $buildProfile = 'release' }
 if (-not $env:CARGO_PROFILE_DEV_DEBUG) { $env:CARGO_PROFILE_DEV_DEBUG = '0' }
 
 Push-Location (Join-Path $sourceRoot 'codex-rs')
@@ -53,7 +53,7 @@ try {
     $checksums = foreach ($binary in $binaries) {
         $name = if ($binary -eq 'codex') { 'midnight-codex.exe' } else { "$binary.exe" }
         $destination = Join-Path $outputRoot $name
-        $source = if ($binary -eq 'codex-code-mode-host') { $codeModeHost } else { Join-Path $targetRoot "$profile/$binary.exe" }
+        $source = if ($binary -eq 'codex-code-mode-host') { $codeModeHost } else { Join-Path $targetRoot "$buildProfile/$binary.exe" }
         Copy-Item -LiteralPath $source -Destination $destination
         $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $destination).Hash.ToLowerInvariant()
         "$hash  $name"
