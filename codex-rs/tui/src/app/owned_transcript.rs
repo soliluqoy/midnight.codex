@@ -75,6 +75,24 @@ impl App {
         tui: &mut tui::Tui,
         screen_size: Size,
     ) -> Result<Rect> {
+        let sidebar_width = if self.chat_widget.has_active_modal() {
+            0
+        } else {
+            self.midnight.width(screen_size.width)
+        };
+        let sidebar_area = Rect::new(
+            screen_size.width - sidebar_width,
+            0,
+            sidebar_width,
+            screen_size.height,
+        );
+        let sidebar_lines = self.midnight.lines(self.chat_widget.midnight_lines());
+        self.midnight.clamp_scroll(sidebar_area, &sidebar_lines);
+        let sidebar_scroll = self.midnight.scroll;
+        let screen_size = Size {
+            width: screen_size.width - sidebar_width,
+            ..screen_size
+        };
         self.chat_widget.sync_warnings(&self.transcript_cells);
         let motion = MotionMode::from_animations_enabled(
             self.local_settings.tui.animations && self.local_settings.tui.effects.shimmer,
@@ -249,6 +267,12 @@ impl App {
                     MotionMode::from_animations_enabled(self.local_settings.tui.animations),
                 );
             bottom.render(bottom_area, frame.buffer);
+            crate::midnight::Sidebar::render(
+                sidebar_area,
+                sidebar_lines,
+                sidebar_scroll,
+                frame.buffer,
+            );
             if let (Some(tip), Some(area)) = (completion_tip, completion_tip_area) {
                 tip.render(area, frame.buffer);
             }

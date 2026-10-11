@@ -890,6 +890,7 @@ See the Codex keymap documentation for supported actions and examples."
             keymap: runtime_keymap,
             key_chord_matcher: KeyChordMatcher::default(),
             transcript_cells: Vec::new(),
+            midnight: crate::midnight::Sidebar::default(),
             native_history: Default::default(),
             turn_tips: Default::default(),
             transcript_view: Default::default(),

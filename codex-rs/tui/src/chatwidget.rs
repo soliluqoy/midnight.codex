@@ -372,6 +372,7 @@ mod replay;
 mod review;
 mod review_popups;
 use self::review::ReviewState;
+mod midnight;
 mod safety_buffering;
 mod service_tiers;
 mod settings;

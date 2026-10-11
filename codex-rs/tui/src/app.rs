@@ -527,6 +527,7 @@ struct InitialHistoryReplayBuffer {
 }
 
 pub(crate) struct App {
+    pub(crate) midnight: crate::midnight::Sidebar,
     feature_write_lock: Arc<tokio::sync::Mutex<()>>,
     model_catalog: Arc<ModelCatalog>,
     pub(crate) session_telemetry: SessionTelemetry,
@@ -895,11 +896,58 @@ impl App {
             return Ok(AppRunControl::Exit(ExitReason::UserRequested));
         }
         let screen_size = tui.screen_size_for_event(&event)?;
+        if tui.is_owned_screen()
+            && self.overlay.is_none()
+            && self.chat_widget.no_modal_or_popup_active()
+        {
+            if let TuiEvent::Key(key) = &event
+                && key.kind == KeyEventKind::Press
+                && key.modifiers == KeyModifiers::ALT
+            {
+                match key.code {
+                    KeyCode::Char('s') => {
+                        self.midnight.toggle();
+                        tui.frame_requester().schedule_frame();
+                        return Ok(AppRunControl::Continue);
+                    }
+                    KeyCode::Char('r') => {
+                        self.midnight.invalidate();
+                        tui.frame_requester().schedule_frame();
+                        return Ok(AppRunControl::Continue);
+                    }
+                    _ => {}
+                }
+            }
+            let width = self.midnight.width(screen_size.width);
+            if let TuiEvent::Mouse(mouse) = &event
+                && width > 0
+                && mouse.column >= screen_size.width - width
+            {
+                match mouse.kind {
+                    crossterm::event::MouseEventKind::ScrollDown => {
+                        self.midnight.scroll = self.midnight.scroll.saturating_add(3)
+                    }
+                    crossterm::event::MouseEventKind::ScrollUp => {
+                        self.midnight.scroll = self.midnight.scroll.saturating_sub(3)
+                    }
+                    _ => {}
+                }
+                tui.frame_requester().schedule_frame();
+                return Ok(AppRunControl::Continue);
+            }
+        }
         if !matches!(
             &event,
             TuiEvent::Key(_) | TuiEvent::Mouse(_) | TuiEvent::Paste(_) | TuiEvent::FocusLost
         ) {
             self.expire_pending_key_chord();
+            if tui.is_owned_screen() && self.midnight.width(screen_size.width) > 0 {
+                self.midnight.refresh(
+                    self.chat_widget.midnight_cwd(),
+                    self.workspace_command_runner.clone(),
+                    tui.frame_requester(),
+                );
+            }
             self.handle_draw_pre_render(tui, screen_size)?;
         }
 

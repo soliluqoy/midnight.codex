@@ -1,3 +1,7 @@
+> **Midnight fork:** this branch adds an internal session/Git sidebar. See
+> [MIDNIGHT.md](MIDNIGHT.md) for building, controls, and upstream maintenance.
+> The installation commands below install the official CLI, which does not include this patch.
+
 <p align="center"><strong>Codex CLI</strong> is a coding agent from OpenAI that runs locally on your computer.
 <p align="center">
   <img src="https://github.com/openai/codex/blob/main/.github/codex-cli-splash.png" alt="Codex CLI splash" width="80%" />

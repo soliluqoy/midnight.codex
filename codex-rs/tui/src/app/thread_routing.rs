@@ -1320,6 +1320,7 @@ impl App {
         } else if is_thread_closed {
             self.mark_agent_picker_thread_closed(thread_id);
         } else if turn_stopped {
+            self.midnight.invalidate();
             self.agent_navigation.mark_stopped(thread_id);
         }
 

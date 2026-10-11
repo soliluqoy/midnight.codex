@@ -177,6 +177,58 @@ fn screen(tui: &tui::Tui) -> String {
     normalize_snapshot_paths(rendered)
 }
 
+#[tokio::test]
+async fn midnight_shares_the_frame_and_restores_prompt_width() -> Result<()> {
+    let mut app = crate::app::test_support::make_test_app().await;
+    let mut app_server = Box::pin(crate::start_embedded_app_server_for_picker(&app.config)).await?;
+    let mut tui = crate::tui::test_support::make_test_tui()?;
+    tui.set_owned_screen(/*owned*/ true)?;
+    app.transcript_cells = vec![Arc::new(PlainHistoryCell::new(vec![
+        "Transcript stays here".into(),
+    ]))];
+    app.chat_widget
+        .apply_external_edit("Unsubmitted prompt".into());
+
+    let wide = Size::new(160, 40);
+    tui.screen_size_for_event(&TuiEvent::Resize(wide))?;
+    let composer = app.render_owned_transcript(&mut tui, wide)?;
+    assert_eq!(composer.width, 124);
+    let rendered = screen(&tui);
+    assert!(rendered.contains("Midnight"));
+    assert!(rendered.contains("Transcript stays here"));
+    assert!(rendered.contains("Unsubmitted prompt"));
+
+    app.handle_tui_event(
+        &mut tui,
+        &mut app_server,
+        TuiEvent::Key(KeyEvent::new(KeyCode::Char('s'), KeyModifiers::ALT)),
+    )
+    .await?;
+    tui.screen_size_for_event(&TuiEvent::Resize(wide))?;
+    assert_eq!(app.render_owned_transcript(&mut tui, wide)?.width, 160);
+    assert!(!screen(&tui).contains("Midnight"));
+    assert_eq!(
+        app.chat_widget.composer_text_with_pending(),
+        "Unsubmitted prompt"
+    );
+
+    app.handle_tui_event(
+        &mut tui,
+        &mut app_server,
+        TuiEvent::Key(KeyEvent::new(KeyCode::Char('s'), KeyModifiers::ALT)),
+    )
+    .await?;
+    tui.screen_size_for_event(&TuiEvent::Resize(wide))?;
+    assert_eq!(app.render_owned_transcript(&mut tui, wide)?.width, 124);
+    let narrow = Size::new(80, 24);
+    tui.screen_size_for_event(&TuiEvent::Resize(narrow))?;
+    assert_eq!(app.render_owned_transcript(&mut tui, narrow)?.width, 80);
+    assert!(!screen(&tui).contains("Midnight"));
+    app_server.shutdown().await?;
+    tui.set_owned_screen(/*owned*/ false)?;
+    Ok(())
+}
+
 fn complete_plan_turn(app: &mut App) {
     app.chat_widget
         .set_feature_enabled(Feature::CollaborationModes, /*enabled*/ true);

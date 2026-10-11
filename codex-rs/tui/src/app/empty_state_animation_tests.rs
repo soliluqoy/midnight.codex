@@ -31,6 +31,14 @@ fn text(buffer: &Buffer) -> String {
         .join("\n")
 }
 
+// These upstream decoration checks assume the entire terminal is available to
+// the transcript. Midnight's enabled layout is covered by the sidebar frame test.
+async fn make_animation_app() -> App {
+    let mut app = crate::app::test_support::make_test_app().await;
+    app.midnight.toggle();
+    app
+}
+
 fn draw(app: &mut App, tui: &mut tui::Tui, size: Size) -> Result<Rect> {
     tui.screen_size_for_event(&TuiEvent::Resize(size))?;
     app.render_owned_transcript(tui, size)
@@ -38,7 +46,7 @@ fn draw(app: &mut App, tui: &mut tui::Tui, size: Size) -> Result<Rect> {
 
 #[tokio::test]
 async fn fresh_logo_returns_only_to_the_ordinary_composer() -> Result<()> {
-    let mut app = crate::app::test_support::make_test_app().await;
+    let mut app = make_animation_app().await;
     app.local_settings.tui.animations = true;
     let size = Size::new(/*width*/ 120, /*height*/ 44);
     let mut tui = crate::tui::test_support::make_test_tui()?;
@@ -88,7 +96,7 @@ async fn fresh_logo_returns_only_to_the_ordinary_composer() -> Result<()> {
 
 #[tokio::test]
 async fn non_startup_history_dismisses_logo_until_a_new_thread() -> Result<()> {
-    let mut app = crate::app::test_support::make_test_app().await;
+    let mut app = make_animation_app().await;
     app.local_settings.tui.animations = true;
     // Leave room for the full release-note card above the centered logo.
     let size = Size::new(/*width*/ 120, /*height*/ 64);
@@ -176,7 +184,7 @@ async fn non_startup_history_dismisses_logo_until_a_new_thread() -> Result<()> {
 
 #[tokio::test]
 async fn empty_state_animation_preserves_header_cursor_and_footer() -> Result<()> {
-    let mut app = crate::app::test_support::make_test_app().await;
+    let mut app = make_animation_app().await;
     app.local_settings.tui.animations = true;
     let size = Size::new(/*width*/ 120, /*height*/ 44);
     let mut tui = crate::tui::test_support::make_test_tui()?;
@@ -291,7 +299,7 @@ async fn empty_state_animation_survives_plain_transcript_clicks() -> Result<()> 
     use crossterm::event::MouseEvent;
     use crossterm::event::MouseEventKind;
 
-    let mut app = crate::app::test_support::make_test_app().await;
+    let mut app = make_animation_app().await;
     app.local_settings.tui.animations = true;
     let size = Size::new(/*width*/ 120, /*height*/ 44);
     let mut tui = crate::tui::test_support::make_test_tui()?;
